@@ -1,0 +1,1 @@
+Create bucket -> IAM -> create Access key
