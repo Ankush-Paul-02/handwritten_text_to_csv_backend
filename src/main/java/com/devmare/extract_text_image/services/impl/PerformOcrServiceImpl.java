@@ -129,7 +129,6 @@ public class PerformOcrServiceImpl implements PerformOcrService {
                 uploadedFileUrl = s3FileUploaderService.uploadImage(multipartFile);
                 System.out.println(uploadedFileUrl);
             }
-            fileService.uploadFile(uploadedFileUrl);
             return uploadedFileUrl;
         } catch (TesseractException e) {
             e.printStackTrace();
