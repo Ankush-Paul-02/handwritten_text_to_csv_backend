@@ -1,5 +1,6 @@
 package com.devmare.extract_text_image.services.impl;
 
+import com.devmare.extract_text_image.services.FileService;
 import com.devmare.extract_text_image.services.PerformOcrService;
 import com.devmare.extract_text_image.services.S3FileUploaderService;
 import com.devmare.extract_text_image.utils.CsvUtil;
@@ -18,6 +19,8 @@ public class PerformOcrServiceImpl implements PerformOcrService {
 
     @Autowired
     private final S3FileUploaderService s3FileUploaderService;
+
+    private final FileService fileService;
 
     private File convertMultipartFileToFile(MultipartFile multipartFile) {
         File file = new File(System.getProperty("java.io.tmpdir") + File.separator + multipartFile.getOriginalFilename());
@@ -120,9 +123,13 @@ public class PerformOcrServiceImpl implements PerformOcrService {
             tesseract.setDatapath("D:\\Program Files\\Tesseract-OCR\\tessdata");
             String extractedText = tesseract.doOCR(scannedImage);
             csvOutputStream = writeDataToCSV(extractedText);
-            MultipartFile multipartFile = CsvUtil.convertCsvToMultipartFile(csvOutputStream.toString(), outputFileName);
-            String uploadedFileUrl = s3FileUploaderService.uploadImage(multipartFile);
-            System.out.println(uploadedFileUrl);
+            String uploadedFileUrl = "";
+            if (csvOutputStream != null) {
+                MultipartFile multipartFile = CsvUtil.convertCsvToMultipartFile(csvOutputStream.toString(), outputFileName);
+                uploadedFileUrl = s3FileUploaderService.uploadImage(multipartFile);
+                System.out.println(uploadedFileUrl);
+            }
+            fileService.uploadFile(uploadedFileUrl);
             return uploadedFileUrl;
         } catch (TesseractException e) {
             e.printStackTrace();
