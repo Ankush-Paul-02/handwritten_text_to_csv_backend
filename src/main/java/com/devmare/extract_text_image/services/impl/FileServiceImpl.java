@@ -4,9 +4,9 @@ import com.devmare.extract_text_image.models.FileModel;
 import com.devmare.extract_text_image.repository.FileRepository;
 import com.devmare.extract_text_image.services.FileService;
 import lombok.Data;
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,7 +19,7 @@ public class FileServiceImpl implements FileService {
     public void uploadFile(String fileUrl) {
         FileModel newFile = FileModel.builder()
                 .fileUrl(fileUrl)
-                .createdAt(DateTime.now())
+                .createdAt(LocalDateTime.now())
                 .build();
         fileRepository.save(newFile);
     }

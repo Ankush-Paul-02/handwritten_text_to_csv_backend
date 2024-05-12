@@ -20,6 +20,7 @@ public class PerformOcrServiceImpl implements PerformOcrService {
     @Autowired
     private final S3FileUploaderService s3FileUploaderService;
 
+    @Autowired
     private final FileService fileService;
 
     private File convertMultipartFileToFile(MultipartFile multipartFile) {
@@ -32,45 +33,6 @@ public class PerformOcrServiceImpl implements PerformOcrService {
             return null;
         }
     }
-
-//    private void writeDataToCSV(String extractedText, String csvFilePath) {
-//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFilePath))) {
-//            String[] lines = extractedText.split("\n");
-//            for (String line : lines) {
-//                // Check if the line contains a comma
-//                boolean containsComma = line.contains(",");
-//                // If a comma is present, replace whitespace with a comma
-//                if (containsComma) {
-//                    line = line.trim().replaceAll("\\s+", ",");
-//                }
-//                writer.write(line);
-//                writer.newLine();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//    private String writeDataToCSV(String extractedText) {
-//        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
-//            String[] lines = extractedText.split("\n");
-//            for (String line : lines) {
-//                // Check if the line contains a comma
-//                boolean containsComma = line.contains(",");
-//                // If a comma is present, replace whitespace with a comma
-//                if (containsComma) {
-//                    line = line.trim().replaceAll("\\s+", ",");
-//                }
-//                writer.write(line);
-//                writer.newLine();
-//            }
-//            return outputStream;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
 
     private ByteArrayOutputStream writeDataToCSV(String extractedText) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -93,26 +55,6 @@ public class PerformOcrServiceImpl implements PerformOcrService {
         }
     }
 
-
-//    @Override
-//    public String performOCR(MultipartFile file, String outputFilePath) {
-//        Tesseract tesseract = new Tesseract();
-//        File scannedImage = convertMultipartFileToFile(file);
-//
-//        try {
-//            tesseract.setDatapath("D:\\Program Files\\Tesseract-OCR\\tessdata");
-//            String extractedText = tesseract.doOCR(scannedImage);
-//            writeDataToCSV(extractedText, outputFilePath);
-//            return "Successfully performed OCR and created CSV file!";
-//        } catch (TesseractException e) {
-//            return "Error performing OCR: " + e.getMessage();
-//        } finally {
-//            if (scannedImage != null && scannedImage.exists()) {
-//                scannedImage.delete();
-//            }
-//        }
-//    }
-
     @Override
     public String performOCR(MultipartFile file, String outputFileName) {
         Tesseract tesseract = new Tesseract();
@@ -127,6 +69,7 @@ public class PerformOcrServiceImpl implements PerformOcrService {
             if (csvOutputStream != null) {
                 MultipartFile multipartFile = CsvUtil.convertCsvToMultipartFile(csvOutputStream.toString(), outputFileName);
                 uploadedFileUrl = s3FileUploaderService.uploadImage(multipartFile);
+                fileService.uploadFile(uploadedFileUrl);
                 System.out.println(uploadedFileUrl);
             }
             return uploadedFileUrl;
